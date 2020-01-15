@@ -32,8 +32,9 @@ def is_non_string_sequence(entry):
 class Query(object):
     """ The Query class is used to match an object against a MongoDB-like query """
     # pylint: disable=too-few-public-methods
-    def __init__(self, definition):
+    def __init__(self, definition, flattened=False):
         self._definition = definition
+        self._flattened = flattened
 
     def match(self, entry):
         """ Matches the entry object against the query specified on instanciation """
@@ -99,7 +100,8 @@ class Query(object):
                         "{!r} operator isn't supported".format(operator))
             else:
                 try:
-                    extracted_data = self._extract(entry, operator.split("."))
+                    path = operator.split(".") if not self._flattened else [operator]
+                    extracted_data = self._extract(entry, path)
                 except IndexError:
                     extracted_data = _Undefined()
         else:
