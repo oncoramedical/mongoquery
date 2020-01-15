@@ -48,9 +48,9 @@ class TestQuery(TestCase):
     def setUp(self):
         self.maxDiff = None
 
-    def _query(self, definition, collection=_ALL):
+    def _query(self, definition, collection=_ALL, flattened=False):
         return list(filter(
-            Query(definition).match,
+            Query(definition, flattened=flattened).match,
             collection
         ))
 
@@ -60,6 +60,7 @@ class TestQuery(TestCase):
         self.assertEqual(_ALL, self._query({"memos.memo": "on time"}))
         self.assertEqual([_FRUIT], self._query({"memos.by": "payment"}))
         self.assertEqual([_FOOD], self._query({"memos.1.memo": "approved"}))
+        self.assertEqual([_FLAT], self._query({"flat.key": "value"}, flattened=True))
 
     def test_comparison(self):
         self.assertEqual(
