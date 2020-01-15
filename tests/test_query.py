@@ -23,10 +23,25 @@ _FRUIT = {
     "ratings": [5, 9],
     "memos": [
         {"memo": "on time", "by": "payment"},
-        {"memo": "delayed", "by": "shipping"}]
+        {"memo": "delayed", "by": "shipping"}
+    ]
 }
 
-_ALL = [_FOOD, _FRUIT]
+_FLAT = {
+    "_id": 102,
+    "type": "flat",
+    "item": "abc",
+    "qty": 15,
+    "price": 4.25,
+    "ratings": [5, 9],
+    "memos": [
+        {"memo": "on time", "by": "shipping"},
+        {"memo": "delayed", "by": "billing"}
+    ],
+    "flat.key": "value"
+}
+
+_ALL = [_FOOD, _FRUIT, _FLAT]
 
 
 class TestQuery(TestCase):
@@ -73,7 +88,7 @@ class TestQuery(TestCase):
         )
 
         self.assertEqual(
-            [_FRUIT],
+            [_FRUIT, _FLAT],
             self._query({"qty": {"$lt": 20}})
         )
 
@@ -83,13 +98,13 @@ class TestQuery(TestCase):
         )
 
         self.assertEqual(
-            [_FOOD],
+            [_FOOD, _FLAT],
             self._query({"qty": {"$ne": 10}})
         )
 
         self.assertEqual(
             [_FOOD],
-            self._query({"qty": {"$nin": [10, 42]}})
+            self._query({"qty": {"$nin": [10, 15, 42]}})
         )
 
     def test_element(self):
@@ -180,7 +195,7 @@ class TestQuery(TestCase):
         )
 
         self.assertEqual(
-            [],
+            [_FLAT],
             self._query({"qty": {"$mod": [4, 3]}})
         )
 
@@ -252,7 +267,7 @@ class TestQuery(TestCase):
 
     def test_array(self):
         self.assertEqual(
-            [_FOOD],
+            [_FOOD, _FLAT],
             self._query({
                 "memos": {
                     "$elemMatch": {
